@@ -1,6 +1,9 @@
 package com.techelevator.tenmo;
 
+import java.util.Scanner;
+
 import com.techelevator.tenmo.models.AuthenticatedUser;
+import com.techelevator.tenmo.models.User;
 import com.techelevator.tenmo.models.UserCredentials;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
@@ -22,6 +25,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private static final String MAIN_MENU_OPTION_LOGIN = "Login as different user";
 	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS, MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_REQUEST_BUCKS, MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
 	
+		
     private AuthenticatedUser currentUser;
     private ConsoleService console;
     private AuthenticationService authenticationService;
@@ -49,13 +53,23 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		while(true) {
 			String choice = (String)console.getChoiceFromOptions(MAIN_MENU_OPTIONS);
 			if(MAIN_MENU_OPTION_VIEW_BALANCE.equals(choice)) {
-				viewCurrentBalance();
+				try {
+					viewCurrentBalance();
+				} catch (AuthenticationServiceException e) {
+					
+					System.out.println(e.getLocalizedMessage());
+				}
 			} else if(MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS.equals(choice)) {
 				viewTransferHistory();
 			} else if(MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
 				viewPendingRequests();
 			} else if(MAIN_MENU_OPTION_SEND_BUCKS.equals(choice)) {
-				sendBucks();
+				try {
+					sendBucks();
+				} catch (AuthenticationServiceException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} else if(MAIN_MENU_OPTION_REQUEST_BUCKS.equals(choice)) {
 				requestBucks();
 			} else if(MAIN_MENU_OPTION_LOGIN.equals(choice)) {
@@ -67,9 +81,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		}
 	}
 
-	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
-		
+	private void viewCurrentBalance() throws AuthenticationServiceException {
+		System.out.println("Current Balance is: " + authenticationService.getBalance(currentUser.getUser().getUsername()));
 	}
 
 	private void viewTransferHistory() {
@@ -82,8 +95,29 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		
 	}
 
-	private void sendBucks() {
+	private void sendBucks() throws AuthenticationServiceException {
 		// TODO Auto-generated method stub
+		User[] user = authenticationService.getAll();
+		String[] usernames = new String[user.length];
+		for(int i = 0; i< user.length; i++) {
+			usernames[i] = user[i].getUsername();
+		}
+		String choice = (String)console.getChoiceFromOptions(usernames);
+		for(User us: user) {
+			if(us.getUsername().equals(choice)) {
+				System.out.println("------------------------------------------");
+				System.out.println("User ID" + "      " + "Name");
+				System.out.println(currentUser.getUser().getId() +"         " + currentUser.getUser().getUsername() );
+				System.out.println(us.getId() +"         " + us.getUsername() );
+				System.out.println("------------------------------------------");
+				Scanner sc = new Scanner(System.in);
+				System.out.print("Enter ID of user you are sending to: ");
+				String sendId = sc.nextLine();
+				System.out.print("Enter Amount: ");
+				String amount = sc.nextLine();
+				updateBalance(us.getId(), Integer.parseInt(sendId), Double.parseDouble(amount));
+				}
+		}
 		
 	}
 
@@ -150,5 +184,10 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		String username = console.getUserInput("Username");
 		String password = console.getUserInput("Password");
 		return new UserCredentials(username, password);
+	}
+	
+	private void updateBalance(int userId, int sendId, double amount) {
+		//check user balance if has enough from amount
+		//minus from user and add to sendie
 	}
 }

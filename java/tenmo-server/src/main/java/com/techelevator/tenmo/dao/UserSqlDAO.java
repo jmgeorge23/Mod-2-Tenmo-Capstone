@@ -22,6 +22,11 @@ public class UserSqlDAO implements UserDAO {
     public UserSqlDAO(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+    
+    @Override
+    public double getBalanceByUser(String username) {
+    	return jdbcTemplate.queryForObject("SELECT balance FROM accounts WHERE user_id = (SELECT user_id FROM users WHERE username = ?);", double.class, username);
+    }
 
     @Override
     public int findIdByUsername(String username) {
