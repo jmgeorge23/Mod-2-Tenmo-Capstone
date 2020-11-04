@@ -17,4 +17,6 @@ public interface UserDAO {
     double getBalanceByUser(String username);
     
     double updateBalance(double newBalance, String username);
+    
+    int addTransfer(Integer transferTypeId, Integer transferStatusId, Integer accountFrom, Integer accountTo, Integer amount);
 }
