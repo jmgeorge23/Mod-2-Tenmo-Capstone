@@ -102,8 +102,10 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		for(int i = 0; i< user.length; i++) {
 			usernames[i] = user[i].getUsername();
 		}
+		System.out.println("Choose which user you want to send money to");
 		String choice = (String)console.getChoiceFromOptions(usernames);
 		for(User us: user) {
+			
 			if(us.getUsername().equals(choice)) {
 				System.out.println("------------------------------------------");
 				System.out.println("User ID" + "      " + "Name");
@@ -111,11 +113,11 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				System.out.println(us.getId() +"         " + us.getUsername() );
 				System.out.println("------------------------------------------");
 				Scanner sc = new Scanner(System.in);
-				System.out.print("Enter ID of user you are sending to: ");
-				String sendId = sc.nextLine();
+				
 				System.out.print("Enter Amount: ");
 				String amount = sc.nextLine();
-				updateBalance(us.getId(), Integer.parseInt(sendId), Double.parseDouble(amount));
+				updateBalance(us.getUsername(), currentUser.getUser().getUsername(), Double.parseDouble(amount));
+				sc.close();
 				}
 		}
 		
@@ -186,8 +188,16 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		return new UserCredentials(username, password);
 	}
 	
-	private void updateBalance(int userId, int sendId, double amount) {
+	private void updateBalance(String username, String recipient, double amount) throws AuthenticationServiceException {
 		//check user balance if has enough from amount
+		if(authenticationService.getBalance(currentUser.getUser().getUsername()) >= amount) {
+			double updatedBalance = authenticationService.getBalance(currentUser.getUser().getUsername()) - amount;
+			System.out.println(authenticationService.updateBalance(username, updatedBalance));
+			System.out.println(authenticationService.updateBalance(recipient, amount + authenticationService.getBalance(username)));
+			
+			
+		}
 		//minus from user and add to sendie
+		
 	}
 }

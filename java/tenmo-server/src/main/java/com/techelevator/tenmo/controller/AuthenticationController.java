@@ -51,6 +51,11 @@ public class AuthenticationController {
     	return userDAO.getBalanceByUser(username);
     }
     
+    @RequestMapping(path = "/balance/{username}", method = RequestMethod.PUT)
+    public double updateBalance(@RequestBody User user, @PathVariable Double balance) {
+    	return userDAO.updateBalance(balance, user.getUsername());
+    }
+    
     @RequestMapping(value = "/users", method = RequestMethod.GET)
     public List<User> list() {
     	return userDAO.findAll();

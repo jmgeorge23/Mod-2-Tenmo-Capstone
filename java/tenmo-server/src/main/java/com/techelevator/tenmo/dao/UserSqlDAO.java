@@ -27,6 +27,11 @@ public class UserSqlDAO implements UserDAO {
     public double getBalanceByUser(String username) {
     	return jdbcTemplate.queryForObject("SELECT balance FROM accounts WHERE user_id = (SELECT user_id FROM users WHERE username = ?);", double.class, username);
     }
+    
+    @Override
+    public double updateBalance(double newBalance, String username) {
+    	return jdbcTemplate.update("UPDATE accounts SET balance = ? WHERE user_id = (SELECT user_id FROM user WHERE username = ?);", double.class, newBalance, username);
+    }
 
     @Override
     public int findIdByUsername(String username) {

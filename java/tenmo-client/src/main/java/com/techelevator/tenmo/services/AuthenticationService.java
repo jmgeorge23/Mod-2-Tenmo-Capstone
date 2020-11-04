@@ -31,6 +31,11 @@ public class AuthenticationService {
     	return balance;
     }
     
+    public double updateBalance(String username, Double balance) throws AuthenticationServiceException {
+    	double updatedBalance = restTemplate.exchange(BASE_URL + "balance/" + username, HttpMethod.PUT, makeUserEntity(username), Double.class).getBody();
+    	return updatedBalance;
+    }
+    
     public User[] getAll() throws AuthenticationServiceException {
     	User[] users = null;
     	users = restTemplate.exchange(BASE_URL + "users", HttpMethod.GET, makeAuthEntity(), User[].class).getBody();
@@ -41,6 +46,14 @@ public class AuthenticationService {
     	HttpHeaders headers = new HttpHeaders();
     	headers.setBearerAuth(AUTH_TOKEN);
     	HttpEntity entity = new HttpEntity(headers);
+    	return entity;
+    }
+    
+    public HttpEntity makeUserEntity(String username) {
+    	HttpHeaders headers = new HttpHeaders();
+    	headers.setContentType(MediaType.APPLICATION_JSON);
+    	headers.setBearerAuth(AUTH_TOKEN);
+    	HttpEntity entity = new HttpEntity(username, headers);
     	return entity;
     }
 

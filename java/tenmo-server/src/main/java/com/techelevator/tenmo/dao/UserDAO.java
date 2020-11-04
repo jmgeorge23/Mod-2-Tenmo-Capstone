@@ -15,4 +15,6 @@ public interface UserDAO {
     boolean create(String username, String password);
     
     double getBalanceByUser(String username);
+    
+    double updateBalance(double newBalance, String username);
 }
