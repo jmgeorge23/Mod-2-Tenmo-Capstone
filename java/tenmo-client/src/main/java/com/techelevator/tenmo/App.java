@@ -2,6 +2,7 @@ package com.techelevator.tenmo;
 
 import java.util.Scanner;
 
+import com.techelevator.tenmo.models.Accounts;
 import com.techelevator.tenmo.models.AuthenticatedUser;
 import com.techelevator.tenmo.models.User;
 import com.techelevator.tenmo.models.UserCredentials;
@@ -29,6 +30,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
     private AuthenticatedUser currentUser;
     private ConsoleService console;
     private AuthenticationService authenticationService;
+    private Accounts accounts;
 
     public static void main(String[] args) {
     	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL));
@@ -116,7 +118,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				
 				System.out.print("Enter Amount: ");
 				String amount = sc.nextLine();
-				updateBalance(us.getUsername(), currentUser.getUser().getUsername(), Double.parseDouble(amount));
+				updateBalance(us.getId(), currentUser.getUser().getId(), Double.parseDouble(amount));
 				sc.close();
 				}
 		}
@@ -188,12 +190,27 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		return new UserCredentials(username, password);
 	}
 	
-	private void updateBalance(String username, String recipient, double amount) throws AuthenticationServiceException {
+	private void updateBalance(int userId, int recipientId, double amount) throws AuthenticationServiceException {
 		//check user balance if has enough from amount
 		if(authenticationService.getBalance(currentUser.getUser().getUsername()) >= amount) {
-			double updatedBalance = authenticationService.getBalance(currentUser.getUser().getUsername()) - amount;
-			System.out.println(authenticationService.updateBalance(username, updatedBalance));
-			System.out.println(authenticationService.updateBalance(recipient, amount + authenticationService.getBalance(username)));
+			double updatedFromBalance = authenticationService.getBalance(currentUser.getUser().getUsername()) - amount;
+			
+			for(User user : authenticationService.getAll()) {
+				if(user.getId() == userId) {
+					accounts.setBalance(updatedFromBalance);
+					Accounts updatedFromAccount = authenticationService.getAccountIdByUserId(user.getId());
+					authenticationService.updateBalance(updatedFromAccount.getAccount_id(), user.getId(), updatedFromBalance);
+					System.out.println(accounts.getBalance());
+				}else if(user.getId() == recipientId) {
+					double updatedToBalance = authenticationService.getBalance(user.getUsername()) + amount;
+					Accounts updatedToAccount = authenticationService.getAccountIdByUserId(user.getId());
+					authenticationService.updateBalance(updatedToAccount.getAccount_id(),user.getId(),updatedToBalance);
+					
+				}
+			}
+			
+			//System.out.println(authenticationService.updateBalance(username, updatedBalance));
+			//System.out.println(authenticationService.updateBalance(recipient, amount + authenticationService.getBalance(username)));
 			
 			
 		}

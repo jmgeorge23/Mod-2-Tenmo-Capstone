@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
-
+import com.techelevator.tenmo.models.Accounts;
 import com.techelevator.tenmo.models.AuthenticatedUser;
 import com.techelevator.tenmo.models.User;
 import com.techelevator.tenmo.models.UserCredentials;
@@ -31,9 +31,15 @@ public class AuthenticationService {
     	return balance;
     }
     
-    public double updateBalance(String username, Double balance) throws AuthenticationServiceException {
-    	double updatedBalance = restTemplate.exchange(BASE_URL + "balance/" + username, HttpMethod.PUT, makeUserEntity(username), Double.class).getBody();
-    	return updatedBalance;
+    public double updateBalance(int accountId, int userId, double newBalance) throws AuthenticationServiceException {
+    	Accounts account = new Accounts(accountId, userId, newBalance);
+    	restTemplate.exchange(BASE_URL + "balance/" + account.getUser_id(), HttpMethod.PUT, makeAccountEntity(account), Accounts.class);
+    	return account.getBalance();
+    }
+    
+    public Accounts getAccountIdByUserId(int userId) throws AuthenticationServiceException {
+    	return restTemplate.exchange(BASE_URL + "accounts/" + userId, HttpMethod.GET, makeAuthEntity(), Accounts.class).getBody();
+    	
     }
     
     public User[] getAll() throws AuthenticationServiceException {
@@ -49,11 +55,11 @@ public class AuthenticationService {
     	return entity;
     }
     
-    public HttpEntity makeUserEntity(String username) {
+    public HttpEntity makeAccountEntity(Accounts account) {
     	HttpHeaders headers = new HttpHeaders();
     	headers.setContentType(MediaType.APPLICATION_JSON);
     	headers.setBearerAuth(AUTH_TOKEN);
-    	HttpEntity entity = new HttpEntity(username, headers);
+    	HttpEntity entity = new HttpEntity(account, headers);
     	return entity;
     }
 

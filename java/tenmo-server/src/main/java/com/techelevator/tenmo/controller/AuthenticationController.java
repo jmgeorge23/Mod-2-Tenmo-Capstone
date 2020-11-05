@@ -20,7 +20,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.techelevator.tenmo.dao.AccountsDAO;
+import com.techelevator.tenmo.dao.TransfersDAO;
 import com.techelevator.tenmo.dao.UserDAO;
+import com.techelevator.tenmo.model.Accounts;
 import com.techelevator.tenmo.model.LoginDTO;
 import com.techelevator.tenmo.model.RegisterUserDTO;
 import com.techelevator.tenmo.model.User;
@@ -37,12 +40,14 @@ public class AuthenticationController {
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private UserDAO userDAO;
-  
+    private AccountsDAO accountsDAO;
+    private TransfersDAO transfersDAO;
 
-    public AuthenticationController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserDAO userDAO) {
+    public AuthenticationController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserDAO userDAO ) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.userDAO = userDAO;
+        
         
     }
 
@@ -51,9 +56,14 @@ public class AuthenticationController {
     	return userDAO.getBalanceByUser(username);
     }
     
-    @RequestMapping(path = "/balance/{username}", method = RequestMethod.PUT)
-    public double updateBalance(@RequestBody User user, @PathVariable Double balance) {
-    	return userDAO.updateBalance(balance, user.getUsername());
+    @RequestMapping(path = "/balance/{userId}", method = RequestMethod.PUT)
+    public double updateBalance(@RequestBody Accounts account, @PathVariable("user_id") int userId) {
+    	return accountsDAO.updateBalance(account.getBalance(), account.getUser_id());
+    }
+    
+    @RequestMapping(path = "/accounts/{userId}", method = RequestMethod.GET)
+    public int getAccountIdByUserId(@PathVariable("user_id") int userId) {
+    	return accountsDAO.getAccountIdByUserId(userId);
     }
     
     @RequestMapping(value = "/users", method = RequestMethod.GET)
