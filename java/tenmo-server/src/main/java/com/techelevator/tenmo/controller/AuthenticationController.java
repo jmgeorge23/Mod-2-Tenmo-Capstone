@@ -43,11 +43,11 @@ public class AuthenticationController {
     private AccountsDAO accountsDAO;
     private TransfersDAO transfersDAO;
 
-    public AuthenticationController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserDAO userDAO ) {
+    public AuthenticationController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserDAO userDAO, AccountsDAO accountsDAO ) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.userDAO = userDAO;
-        
+        this.accountsDAO = accountsDAO;
         
     }
 
@@ -57,13 +57,13 @@ public class AuthenticationController {
     }
     
     @RequestMapping(path = "/balance/{userId}", method = RequestMethod.PUT)
-    public double updateBalance(@RequestBody Accounts account, @PathVariable("user_id") int userId) {
-    	return accountsDAO.updateBalance(account.getBalance(), account.getUser_id());
+    public void updateBalance(@RequestBody Accounts account, @PathVariable int userId) {
+    	accountsDAO.updateBalance(account.getBalance(), account.getUser_id());
     }
     
-    @RequestMapping(path = "/accounts/{userId}", method = RequestMethod.GET)
-    public int getAccountIdByUserId(@PathVariable("user_id") int userId) {
-    	return accountsDAO.getAccountIdByUserId(userId);
+    @RequestMapping(value = "/accounts", method = RequestMethod.GET)
+    public List<Accounts> getAccounts() {
+    	return accountsDAO.findAllAccounts();
     }
     
     @RequestMapping(value = "/users", method = RequestMethod.GET)
