@@ -22,9 +22,19 @@ public class TransfersSqlDAO implements TransfersDAO{
 	@Override
 	    public void addTransfer(int transferId,int transferTypeId, Integer transferStatusId, Integer accountFrom, Integer accountTo, BigDecimal amount) {
 	    	jdbcTemplate.update("INSERT INTO transfers (transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount)"
-	    			+ " VALUES (?,?,?,?,?,?)", Integer.class, transferId,transferTypeId, transferStatusId, accountFrom, accountTo, amount);
+	    			+ " VALUES (?,?,?,?,?,?);", transferId,transferTypeId, transferStatusId, accountFrom, accountTo, amount);
 	    	
 	    }
+	
+	@Override
+	public Transfers findTransferByTransferId(int transferId) {
+		Transfers transfer = null;
+		SqlRowSet result = jdbcTemplate.queryForRowSet("SELECT * FROM transfers WHERE transfer_id = ?", transferId);
+		if(result.next()) {
+			transfer = mapRowToTransfers(result);
+		}
+		return transfer;
+	}
 	
 	@Override
 	public List<Transfers> findAllTransfers() {
