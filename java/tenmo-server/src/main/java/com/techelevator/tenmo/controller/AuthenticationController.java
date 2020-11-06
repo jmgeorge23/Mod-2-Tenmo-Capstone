@@ -26,6 +26,7 @@ import com.techelevator.tenmo.dao.UserDAO;
 import com.techelevator.tenmo.model.Accounts;
 import com.techelevator.tenmo.model.LoginDTO;
 import com.techelevator.tenmo.model.RegisterUserDTO;
+import com.techelevator.tenmo.model.Transfers;
 import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserAlreadyExistsException;
 import com.techelevator.tenmo.security.jwt.JWTFilter;
@@ -43,11 +44,12 @@ public class AuthenticationController {
     private AccountsDAO accountsDAO;
     private TransfersDAO transfersDAO;
 
-    public AuthenticationController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserDAO userDAO, AccountsDAO accountsDAO ) {
+    public AuthenticationController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserDAO userDAO, AccountsDAO accountsDAO, TransfersDAO transfersDAO ) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.userDAO = userDAO;
         this.accountsDAO = accountsDAO;
+        this.transfersDAO = transfersDAO;
         
     }
 
@@ -70,6 +72,18 @@ public class AuthenticationController {
     public List<User> list() {
     	return userDAO.findAll();
     }
+    
+    @RequestMapping(value = "/transfers", method = RequestMethod.GET)
+    public List<Transfers> listTransfers() {
+    	return transfersDAO.findAllTransfers();
+    }
+    
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(value = "/transfers", method = RequestMethod.POST)
+    	public void addTransfer(@RequestBody Transfers transfers) {
+    		transfersDAO.addTransfer(transfers.getTransfer_id(),transfers.getTransfer_type_id(), transfers.getTransfer_status_id(), transfers.getAccount_from(), transfers.getAccount_to(), transfers.getAmount());
+    	}
+    
     
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginDTO loginDto) {

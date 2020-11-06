@@ -9,6 +9,5 @@ public interface AccountsDAO {
 	
 	void updateBalance(BigDecimal balance, int userId);
 	
-	
-	 public List<Accounts> findAllAccounts();
+	public List<Accounts> findAllAccounts();
 }
