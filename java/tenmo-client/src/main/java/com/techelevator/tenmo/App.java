@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import com.techelevator.tenmo.models.Accounts;
 import com.techelevator.tenmo.models.AuthenticatedUser;
+import com.techelevator.tenmo.models.Transfers;
 import com.techelevator.tenmo.models.User;
 import com.techelevator.tenmo.models.UserCredentials;
 import com.techelevator.tenmo.services.AuthenticationService;
@@ -66,7 +67,12 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 					System.out.println(e.getLocalizedMessage());
 				}
 			} else if(MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS.equals(choice)) {
-				viewTransferHistory();
+				try {
+					viewTransferHistory();
+				} catch (AuthenticationServiceException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} else if(MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
 				viewPendingRequests();
 			} else if(MAIN_MENU_OPTION_SEND_BUCKS.equals(choice)) {
@@ -91,8 +97,12 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		System.out.println("Current Balance is: " + tenmoService.getBalance(currentUser));
 	}
 
-	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
+	private void viewTransferHistory() throws AuthenticationServiceException {
+		Transfers[] transfers = tenmoService.getAllTransactionsByUsers(currentUser.getUser().getId(), currentUser.getToken());
+		for(Transfers T : transfers) {
+			System.out.println(T.toString());
+		}
+		
 		
 	}
 
@@ -124,14 +134,16 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				String inAmount = sc.nextLine();
 				BigDecimal amount = new BigDecimal(inAmount);
 				if(tenmoService.getBalance(currentUser).compareTo(amount) >= 0) {
-					tenmoService.addNewTranser(1, 2, 2, currentUser.getUser().getId(), us.getId(), amount);
+					tenmoService.addNewTransfer(1, 2, 2, currentUser.getUser().getId(), us.getId(), amount, currentUser.getToken());
 				}else {
-					tenmoService.addNewTranser(1, 2, 3, currentUser.getUser().getId(), us.getId(), amount);
+					tenmoService.addNewTransfer(1, 2, 3, currentUser.getUser().getId(), us.getId(), amount, currentUser.getToken());
 				}
 				//updateBalance(us.getId(), currentUser.getUser().getId(), new BigDecimal(amount));
 				sc.close();
 				}
 		}
+		
+		
 		
 	}
 

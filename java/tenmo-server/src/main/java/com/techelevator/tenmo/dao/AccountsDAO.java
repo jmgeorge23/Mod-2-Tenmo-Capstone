@@ -11,5 +11,5 @@ public interface AccountsDAO {
 	
 	public List<Accounts> findAllAccounts();
 
-	void updateBalance(BigDecimal currentbalance, BigDecimal amount, int userId);
+	void updateBalance(BigDecimal newBalance, int userId);
 }

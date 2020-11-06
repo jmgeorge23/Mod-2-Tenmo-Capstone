@@ -72,6 +72,7 @@ public class Transfers {
 		
 		@Override 
 		public String toString() {
-			return "transfer_id + transfer_type_id +transfer_status_id+account_from+account_to+amount";
+			return "transfer id: " + transfer_id + " transfer type id: " + transfer_type_id + " transfer status id: "
+		+ transfer_status_id + " account from: " + account_from + " account to: " + account_to + " amount: " + amount;
 		}
 }

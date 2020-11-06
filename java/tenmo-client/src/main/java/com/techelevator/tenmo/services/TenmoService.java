@@ -28,9 +28,16 @@ public class TenmoService {
     	return balance;
     }
     
-    public Transfers addNewTranser(int transferId, int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal amount) {
+    public Transfers addNewTransfer(int transferId, int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal amount, String TOKEN) {
     	Transfers transfer = new Transfers(transferId, transferTypeId, transferStatusId, accountFrom, accountTo, amount);
-    	return restTemplate.exchange(BASE_URL + "transfers", HttpMethod.POST, makeTransferEntity(transfer), Transfers.class).getBody();
+    	restTemplate.exchange(BASE_URL + "transfers", HttpMethod.POST,  makeTransferEntity(transfer, TOKEN), Transfers.class);
+    	return transfer;
+    }
+    
+    public Transfers[] getAllTransactionsByUsers(int user_id, String TOKEN) throws AuthenticationServiceException {
+    	Transfers[] transfers = null;
+    	transfers = restTemplate.exchange(BASE_URL + "users/transfers/" + user_id, HttpMethod.GET, AuthEntity(TOKEN), Transfers[].class).getBody();
+    	return transfers;
     }
     
 //    public BigDecimal updateBalance(int accountId, int userId, BigDecimal updatedToBalance) throws AuthenticationServiceException {
@@ -63,10 +70,10 @@ public class TenmoService {
     	return entity;
     }
     
-    public HttpEntity makeTransferEntity(Transfers transfer) {
+    public HttpEntity makeTransferEntity(Transfers transfer, String TOKEN) {
     	HttpHeaders headers = new HttpHeaders();
     	headers.setContentType(MediaType.APPLICATION_JSON);
-    	headers.setBearerAuth(AUTH_TOKEN);
+    	headers.setBearerAuth(TOKEN);
     	HttpEntity entity = new HttpEntity(transfer, headers);
     	return entity;
     }

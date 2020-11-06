@@ -47,12 +47,12 @@ public class TransfersSqlDAO implements TransfersDAO{
 	}
 	
 	@Override
-	public List<Transfers> findAllTransfers() {
+	public List<Transfers> findAllTransfers(int account_from) {
 		 
         List<Transfers> transfer = new ArrayList<>();
-        String sql = "select * from transfers";
+        String sql = "select * from transfers where account_from = ?";
 
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, account_from);
         while(results.next()) {
         	Transfers transfers = mapRowToTransfers(results);
             transfer.add(transfers);

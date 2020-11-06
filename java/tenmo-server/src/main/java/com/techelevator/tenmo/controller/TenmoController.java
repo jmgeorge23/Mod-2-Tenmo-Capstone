@@ -52,9 +52,9 @@ public class TenmoController {
 	    	return userDAO.findAll();
 	    }
 	    
-	    @RequestMapping(value = "/transfers", method = RequestMethod.GET)
-	    public List<Transfers> listTransfers() {
-	    	return transfersDAO.findAllTransfers();
+	    @RequestMapping(value = "/users/transfers/{user_id}", method = RequestMethod.GET)
+	    public List<Transfers> listTransfers(@PathVariable int user_id) {
+	    	return transfersDAO.findAllTransfers(user_id);
 	    }
 	    
 	    @ResponseStatus(HttpStatus.CREATED)
@@ -65,9 +65,10 @@ public class TenmoController {
 	    		transfersDAO.addTransfer(transfers);
 	    		for(User user: userDAO.findAll()) {
 	    			if(user.getId() == transfers.getAccount_from()) {
-	    				accountsDAO.updateBalance(userDAO.getBalanceByUser(user.getUsername()), transfers.getAmount(), transfers.getAccount_from());
+	    				accountsDAO.updateBalance(userDAO.getBalanceByUser(user.getUsername()).subtract(transfers.getAmount()), transfers.getAccount_from());
 	    			}else if(user.getId() == transfers.getAccount_to()) {
-	    				accountsDAO.updateBalance(userDAO.getBalanceByUser(user.getUsername()), transfers.getAmount().negate(), transfers.getAccount_from());
+	    				accountsDAO.updateBalance(userDAO.getBalanceByUser(user.getUsername()).add(transfers.getAmount()), transfers.getAccount_to());
+	    				
 	    			}
 	    		}
 	    		
