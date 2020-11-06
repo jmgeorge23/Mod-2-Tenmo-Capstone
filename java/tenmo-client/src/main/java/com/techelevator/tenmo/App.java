@@ -1,5 +1,6 @@
 package com.techelevator.tenmo;
 
+import java.math.BigDecimal;
 import java.util.Scanner;
 
 import com.techelevator.tenmo.models.Accounts;
@@ -8,6 +9,7 @@ import com.techelevator.tenmo.models.User;
 import com.techelevator.tenmo.models.UserCredentials;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
+import com.techelevator.tenmo.services.TenmoService;
 import com.techelevator.view.ConsoleService;
 
 public class App {
@@ -31,15 +33,17 @@ private static final String API_BASE_URL = "http://localhost:8080/";
     private ConsoleService console;
     private AuthenticationService authenticationService;
     private Accounts accounts;
+    private TenmoService tenmoService;
 
     public static void main(String[] args) {
-    	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL));
+    	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL), new TenmoService(API_BASE_URL));
     	app.run();
     }
 
-    public App(ConsoleService console, AuthenticationService authenticationService) {
+    public App(ConsoleService console, AuthenticationService authenticationService, TenmoService tenmoService) {
 		this.console = console;
 		this.authenticationService = authenticationService;
+		this.tenmoService = tenmoService;
 	}
 
 	public void run() {
@@ -84,7 +88,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewCurrentBalance() throws AuthenticationServiceException {
-		System.out.println("Current Balance is: " + authenticationService.getBalance(currentUser.getUser().getUsername()));
+		System.out.println("Current Balance is: " + tenmoService.getBalance(currentUser));
 	}
 
 	private void viewTransferHistory() {
@@ -99,7 +103,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void sendBucks() throws AuthenticationServiceException {
 		// TODO Auto-generated method stub
-		User[] user = authenticationService.getAll();
+		User[] user = tenmoService.getAll();
 		String[] usernames = new String[user.length];
 		for(int i = 0; i< user.length; i++) {
 			usernames[i] = user[i].getUsername();
@@ -117,8 +121,14 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				Scanner sc = new Scanner(System.in);
 				
 				System.out.print("Enter Amount: ");
-				String amount = sc.nextLine();
-				updateBalance(us.getId(), currentUser.getUser().getId(), Double.parseDouble(amount));
+				String inAmount = sc.nextLine();
+				BigDecimal amount = new BigDecimal(inAmount);
+				if(tenmoService.getBalance(currentUser).compareTo(amount) >= 0) {
+					tenmoService.addNewTranser(1, 2, 2, currentUser.getUser().getId(), us.getId(), amount);
+				}else {
+					tenmoService.addNewTranser(1, 2, 3, currentUser.getUser().getId(), us.getId(), amount);
+				}
+				//updateBalance(us.getId(), currentUser.getUser().getId(), new BigDecimal(amount));
 				sc.close();
 				}
 		}
@@ -190,21 +200,21 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		return new UserCredentials(username, password);
 	}
 	
-	private void updateBalance(int userId, int recipientId, double amount) throws AuthenticationServiceException {
+	private void updateBalance(int userId, int recipientId, BigDecimal amount) throws AuthenticationServiceException {
 		//check user balance if has enough from amount
-		if(authenticationService.getBalance(currentUser.getUser().getUsername()) >= amount) {
-			double updatedFromBalance = authenticationService.getBalance(currentUser.getUser().getUsername()) - amount;
+		if(tenmoService.getBalance(currentUser).compareTo(amount) >= 0) {
+			BigDecimal updatedFromBalance = tenmoService.getBalance(currentUser).subtract(amount);
 			
-			for(User user : authenticationService.getAll()) {
+			for(User user : tenmoService.getAll()) {
 				if(user.getId() == userId) {
 					accounts.setBalance(updatedFromBalance);
-					Accounts updatedFromAccount = authenticationService.getAccountIdByUserId(user.getId());
-					authenticationService.updateBalance(updatedFromAccount.getAccount_id(), user.getId(), updatedFromBalance);
+					//Accounts updatedFromAccount = tenmoService.getAccountIdByUserId(user.getId());
+					//tenmoService.updateBalance(updatedFromAccount.getAccount_id(), user.getId(), updatedFromBalance);
 					System.out.println(accounts.getBalance());
 				}else if(user.getId() == recipientId) {
-					double updatedToBalance = authenticationService.getBalance(user.getUsername()) + amount;
-					Accounts updatedToAccount = authenticationService.getAccountIdByUserId(user.getId());
-					authenticationService.updateBalance(updatedToAccount.getAccount_id(),user.getId(),updatedToBalance);
+					//BigDecimal updatedToBalance = tenmoService.getBalance(user).add(amount);
+					//Accounts updatedToAccount = tenmoService.getAccountIdByUserId(user.getId());
+					//tenmoService.updateBalance(updatedToAccount.getAccount_id(),user.getId(),updatedToBalance);
 					
 				}
 			}

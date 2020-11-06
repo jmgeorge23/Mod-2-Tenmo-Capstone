@@ -20,8 +20,8 @@ public class AccountsSqlDAO implements AccountsDAO {
     }
 	
 	 @Override
-	    public void updateBalance(BigDecimal newBalance, int userId) {
-	    	jdbcTemplate.update("UPDATE accounts SET balance = ? WHERE user_id = ?", newBalance, userId);
+	    public void updateBalance(BigDecimal currentBalance,BigDecimal amount, int userId) {
+	    	jdbcTemplate.update("UPDATE accounts SET balance = (? - ?) WHERE user_id = ?",currentBalance, amount, userId);
 	    }
 	    @Override
 	    public List<Accounts> findAllAccounts() {

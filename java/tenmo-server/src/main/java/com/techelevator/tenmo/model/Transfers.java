@@ -2,6 +2,8 @@ package com.techelevator.tenmo.model;
 
 import java.math.BigDecimal;
 
+
+
 public class Transfers {
 	private int transfer_id;
 	private int transfer_type_id;
@@ -73,4 +75,8 @@ public class Transfers {
 	public String toString() {
 		return "transfer_id + transfer_type_id +transfer_status_id+account_from+account_to+amount";
 	}
+	
+    public int getMaxIdPlusOne() {
+        return transfer_id + 1;
+    }
 }

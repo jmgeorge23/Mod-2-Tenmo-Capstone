@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.dao;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +25,8 @@ public class UserSqlDAO implements UserDAO {
     }
     
     @Override
-    public double getBalanceByUser(String username) {
-    	return jdbcTemplate.queryForObject("SELECT balance FROM accounts WHERE user_id = (SELECT user_id FROM users WHERE username = ?);", double.class, username);
+    public BigDecimal getBalanceByUser(String username) {
+    	return jdbcTemplate.queryForObject("SELECT balance FROM accounts WHERE user_id = (SELECT user_id FROM users WHERE username = ?);", BigDecimal.class, username);
     }
     
    

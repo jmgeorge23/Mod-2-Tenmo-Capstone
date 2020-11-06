@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -32,14 +33,14 @@ public class TenmoController {
 	 }
 	 
 	 @RequestMapping(value = "/balance/{username}", method = RequestMethod.GET)
-	    public double getBalance(@PathVariable String username) {
+	    public BigDecimal getBalance(@PathVariable String username) {
 	    	return userDAO.getBalanceByUser(username);
 	    }
 	    
-	    @RequestMapping(path = "/balance/{userId}", method = RequestMethod.PUT)
-	    public void updateBalance(@RequestBody Accounts account, @PathVariable int userId) {
-	    	accountsDAO.updateBalance(account.getBalance(), account.getUser_id());
-	    }
+//	    @RequestMapping(path = "/balance/{userId}", method = RequestMethod.PUT)
+//	    public void updateBalance(@RequestBody Accounts account, @PathVariable int userId) {
+//	    	accountsDAO.updateBalance(transfersDAO.findTransferByTransferId(transfers.) account.getBalance(), account.getUser_id());
+//	    }
 	    
 	    @RequestMapping(value = "/accounts", method = RequestMethod.GET)
 	    public List<Accounts> getAccounts() {
@@ -59,7 +60,17 @@ public class TenmoController {
 	    @ResponseStatus(HttpStatus.CREATED)
 	    @RequestMapping(value = "/transfers", method = RequestMethod.POST)
 	    	public void addTransfer(@RequestBody Transfers transfers) {
-	    		transfersDAO.addTransfer(transfers.getTransfer_id(),transfers.getTransfer_type_id(), transfers.getTransfer_status_id(), transfers.getAccount_from(), transfers.getAccount_to(), transfers.getAmount());
+	    		//int transferId = transfers.getMaxIdPlusOne();
+	    	//transferId,transfers.getTransfer_type_id(), transfers.getTransfer_status_id(), transfers.getAccount_from(), transfers.getAccount_to(), transfers.getAmount()
+	    		transfersDAO.addTransfer(transfers);
+	    		for(User user: userDAO.findAll()) {
+	    			if(user.getId() == transfers.getAccount_from()) {
+	    				accountsDAO.updateBalance(userDAO.getBalanceByUser(user.getUsername()), transfers.getAmount(), transfers.getAccount_from());
+	    			}else if(user.getId() == transfers.getAccount_to()) {
+	    				accountsDAO.updateBalance(userDAO.getBalanceByUser(user.getUsername()), transfers.getAmount().negate(), transfers.getAccount_from());
+	    			}
+	    		}
+	    		
 	    	}
 	    @RequestMapping(path = "/transfers/{transferId}", method = RequestMethod.GET)
 	    public Transfers findTransferByTransferId(@RequestBody Transfers transfer, @PathVariable int transferId) {
