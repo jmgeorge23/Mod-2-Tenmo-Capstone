@@ -21,19 +21,10 @@ public class TransfersSqlDAO implements TransfersDAO{
         this.jdbcTemplate = jdbcTemplate;
     }
     
-//	@Override
-//	    public void addTransfer(int transferId,int transferTypeId, Integer transferStatusId, Integer accountFrom, Integer accountTo, BigDecimal amount) {
-//	    	jdbcTemplate.update("INSERT INTO transfers (transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount)"
-//	    			+ " VALUES (?,?,?,?,?,?);", transferId,transferTypeId, transferStatusId, accountFrom, accountTo, amount);
-//	    	
-//	    	jdbcTemplate.update("UPDATE accounts SET balance = (? + ?) WHERE user_id = ?",accounts.getBalance(), amount,accountTo);
-//	    	jdbcTemplate.update("UPDATE accounts SET balance = (? - ?) WHERE user_id = ?",accounts.getBalance(), amount,accountFrom);
-//	    	
-//	    }
     @Override
     public void addTransfer(Transfers transfer) {
-    	jdbcTemplate.update("INSERT INTO transfers (transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount)"
-    			+ " VALUES (?,?,?,?,?,?);", transfer.getMaxIdPlusOne(),transfer.getTransfer_type_id(),transfer.getTransfer_status_id(),
+    	jdbcTemplate.update("INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount)"
+    			+ " VALUES (?,?,?,?,?);", transfer.getTransfer_type_id(),transfer.getTransfer_status_id(),
     										transfer.getAccount_from(),transfer.getAccount_to(),transfer.getAmount());
     }
 	@Override

@@ -28,8 +28,8 @@ public class TenmoService {
     	return balance;
     }
     
-    public Transfers addNewTransfer(int transferId, int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal amount, String TOKEN) {
-    	Transfers transfer = new Transfers(transferId, transferTypeId, transferStatusId, accountFrom, accountTo, amount);
+    public Transfers addTransfer(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal amount, String TOKEN) {
+    	Transfers transfer = new Transfers(transferTypeId, transferStatusId, accountFrom, accountTo, amount);
     	restTemplate.exchange(BASE_URL + "transfers", HttpMethod.POST,  makeTransferEntity(transfer, TOKEN), Transfers.class);
     	return transfer;
     }
@@ -40,32 +40,20 @@ public class TenmoService {
     	return transfers;
     }
     
-//    public BigDecimal updateBalance(int accountId, int userId, BigDecimal updatedToBalance) throws AuthenticationServiceException {
-//    	Accounts account = new Accounts(accountId, userId, updatedToBalance);
-//    	restTemplate.exchange(BASE_URL + "balance/" + account.getUser_id(), HttpMethod.PUT, makeAccountEntity(account), Accounts.class);
-//    	return account.getBalance();
-//    }
-    
-//    public Accounts getAccountIdByUserId(int userId) throws AuthenticationServiceException {
-//    	return restTemplate.exchange(BASE_URL + "accounts/" + userId, HttpMethod.GET, makeAuthEntity(), Accounts.class).getBody();
-//    	
-//    }
-    
-    public User[] getAll() throws AuthenticationServiceException {
+    public Transfers getTransferByTransferId(int transfer_id, String token) {
+    	Transfers transfers = restTemplate.exchange(BASE_URL + "transfers/" + transfer_id , HttpMethod.GET, AuthEntity(token), Transfers.class).getBody();
+    	return transfers;
+    }
+
+    public User[] getAll(String token) throws AuthenticationServiceException {
     	User[] users = null;
-    	users = restTemplate.exchange(BASE_URL + "users", HttpMethod.GET, makeAuthEntity(), User[].class).getBody();
+    	users = restTemplate.exchange(BASE_URL + "users", HttpMethod.GET, AuthEntity(token), User[].class).getBody();
     	return users;
     }
     
     public HttpEntity AuthEntity(String token) {
     	HttpHeaders headers = new HttpHeaders();
     	headers.setBearerAuth(token);
-    	HttpEntity entity = new HttpEntity(headers);
-    	return entity;
-    }
-    public HttpEntity makeAuthEntity() {
-    	HttpHeaders headers = new HttpHeaders();
-    	headers.setBearerAuth(AUTH_TOKEN);
     	HttpEntity entity = new HttpEntity(headers);
     	return entity;
     }
@@ -77,13 +65,7 @@ public class TenmoService {
     	HttpEntity entity = new HttpEntity(transfer, headers);
     	return entity;
     }
-//    public HttpEntity makeAccountEntity(Accounts account) {
-//    	HttpHeaders headers = new HttpHeaders();
-//    	headers.setContentType(MediaType.APPLICATION_JSON);
-//    	headers.setBearerAuth(AUTH_TOKEN);
-//    	HttpEntity entity = new HttpEntity(account, headers);
-//    	return entity;
-//    }
+
     
    
 }

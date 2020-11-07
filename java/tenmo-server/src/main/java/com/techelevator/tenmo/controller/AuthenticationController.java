@@ -41,49 +41,15 @@ public class AuthenticationController {
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private UserDAO userDAO;
-//    private AccountsDAO accountsDAO;
-//    private TransfersDAO transfersDAO;
+
 
     public AuthenticationController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserDAO userDAO, AccountsDAO accountsDAO, TransfersDAO transfersDAO ) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.userDAO = userDAO;
-//        this.accountsDAO = accountsDAO;
-//        this.transfersDAO = transfersDAO;
+
         
     }
-
-//    @RequestMapping(value = "/balance/{username}", method = RequestMethod.GET)
-//    public double getBalance(@PathVariable String username) {
-//    	return userDAO.getBalanceByUser(username);
-//    }
-//    
-//    @RequestMapping(path = "/balance/{userId}", method = RequestMethod.PUT)
-//    public void updateBalance(@RequestBody Accounts account, @PathVariable int userId) {
-//    	accountsDAO.updateBalance(account.getBalance(), account.getUser_id());
-//    }
-//    
-//    @RequestMapping(value = "/accounts", method = RequestMethod.GET)
-//    public List<Accounts> getAccounts() {
-//    	return accountsDAO.findAllAccounts();
-//    }
-//    
-//    @RequestMapping(value = "/users", method = RequestMethod.GET)
-//    public List<User> list() {
-//    	return userDAO.findAll();
-//    }
-//    
-//    @RequestMapping(value = "/transfers", method = RequestMethod.GET)
-//    public List<Transfers> listTransfers() {
-//    	return transfersDAO.findAllTransfers();
-//    }
-//    
-//    @ResponseStatus(HttpStatus.CREATED)
-//    @RequestMapping(value = "/transfers", method = RequestMethod.POST)
-//    	public void addTransfer(@RequestBody Transfers transfers) {
-//    		transfersDAO.addTransfer(transfers.getTransfer_id(),transfers.getTransfer_type_id(), transfers.getTransfer_status_id(), transfers.getAccount_from(), transfers.getAccount_to(), transfers.getAmount());
-//    	}
-    
     
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginDTO loginDto) {

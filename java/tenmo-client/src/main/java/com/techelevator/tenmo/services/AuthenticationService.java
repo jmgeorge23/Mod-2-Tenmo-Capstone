@@ -25,43 +25,6 @@ public class AuthenticationService {
     public AuthenticationService(String url) {
         this.BASE_URL = url;
     }
-    
-//    public double getBalance(String username) throws AuthenticationServiceException {
-//    	double balance = restTemplate.exchange(BASE_URL + "balance/" + username, HttpMethod.GET, makeAuthEntity(), Double.class).getBody();
-//    	return balance;
-//    }
-//    
-//    public double updateBalance(int accountId, int userId, double newBalance) throws AuthenticationServiceException {
-//    	Accounts account = new Accounts(accountId, userId, newBalance);
-//    	restTemplate.exchange(BASE_URL + "balance/" + account.getUser_id(), HttpMethod.PUT, makeAccountEntity(account), Accounts.class);
-//    	return account.getBalance();
-//    }
-//    
-//    public Accounts getAccountIdByUserId(int userId) throws AuthenticationServiceException {
-//    	return restTemplate.exchange(BASE_URL + "accounts/" + userId, HttpMethod.GET, makeAuthEntity(), Accounts.class).getBody();
-//    	
-//    }
-//    
-//    public User[] getAll() throws AuthenticationServiceException {
-//    	User[] users = null;
-//    	users = restTemplate.exchange(BASE_URL + "users", HttpMethod.GET, makeAuthEntity(), User[].class).getBody();
-//    	return users;
-//    }
-//    
-//    public HttpEntity makeAuthEntity() {
-//    	HttpHeaders headers = new HttpHeaders();
-//    	headers.setBearerAuth(AUTH_TOKEN);
-//    	HttpEntity entity = new HttpEntity(headers);
-//    	return entity;
-//    }
-//    
-//    public HttpEntity makeAccountEntity(Accounts account) {
-//    	HttpHeaders headers = new HttpHeaders();
-//    	headers.setContentType(MediaType.APPLICATION_JSON);
-//    	headers.setBearerAuth(AUTH_TOKEN);
-//    	HttpEntity entity = new HttpEntity(account, headers);
-//    	return entity;
-//    }
 
     public AuthenticatedUser login(UserCredentials credentials) throws AuthenticationServiceException {
         HttpEntity<UserCredentials> entity = createRequestEntity(credentials);

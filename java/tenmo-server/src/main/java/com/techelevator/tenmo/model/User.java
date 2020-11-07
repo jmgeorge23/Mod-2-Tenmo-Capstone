@@ -4,10 +4,14 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.validation.constraints.NotNull;
+
 public class User {
 
    private Long id;
+   @NotNull(message = "Please Enter a Valid Username")
    private String username;
+   @NotNull(message = "Please Enter a Valid password")
    private String password;
    private boolean activated;
    private Set<Authority> authorities = new HashSet<>();
