@@ -26,9 +26,9 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private static final String MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS = "View your past transfers";
 	private static final String MAIN_MENU_OPTION_VIEW_TRANSFERS_BY_ID = "View a specific transfer";
 	private static final String MAIN_MENU_OPTION_REQUEST_BUCKS = "Request TE bucks";
-	private static final String MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS = "View your pending requests";
+	//private static final String MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS = "View your pending requests";
 	private static final String MAIN_MENU_OPTION_LOGIN = "Login as different user";
-	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS, MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_VIEW_TRANSFERS_BY_ID, MAIN_MENU_OPTION_REQUEST_BUCKS, MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
+	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS, MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_VIEW_TRANSFERS_BY_ID, MAIN_MENU_OPTION_REQUEST_BUCKS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
 	
 		
     private AuthenticatedUser currentUser;
@@ -105,21 +105,28 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 					System.out.println("You are not Authorized to access this information.");
 				}
 			}
-			else if(MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
-				viewPendingRequests();
-			} else if(MAIN_MENU_OPTION_SEND_BUCKS.equals(choice)) {
+			//else if(MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
+				//viewPendingRequests();
+			 else if(MAIN_MENU_OPTION_SEND_BUCKS.equals(choice)) {
 				try {
 					sendBucks();
 				} catch (AuthenticationServiceException e) {
 					System.out.println("You are not Authorized to access this information.");
 				}
 			} else if(MAIN_MENU_OPTION_REQUEST_BUCKS.equals(choice)) {
-				requestBucks();
+				try {
+					requestBucks();
+				} catch (AuthenticationServiceException e) {
+					System.out.println("You are not Authorized to access this information.");
+					
+				}
 			} else if(MAIN_MENU_OPTION_LOGIN.equals(choice)) {
 				login();
 			} else {
 				// the only other option on the main menu is to exit
+				System.out.println("Can I pet dat dog?");
 				exitProgram();
+				
 			}
 		}
 	}
@@ -137,32 +144,29 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		System.out.print("What transfer id?: ");
 		String id = sc.nextLine();
 		Transfers transfer = tenmoService.getTransferByTransferId(Integer.parseInt(id), currentUser.getToken());
-		if(transfer.getTransfer_status_id() == 2) {
-			
-			System.out.println(transfer.toString() + " ACCEPTED!");
-		}else if(transfer.getTransfer_status_id() ==  3) {
-			
-			System.out.println(transfer.toString() + " REJECTED :(");
+		if(transfer.getTransfer_type_id() == 2) {
+		printSendTransfers(transfer);
 		}else {
-			System.out.println(transfer.toString() + " PENDING");
+		printRequestTransfers(transfer);
 		}
 	}
 
 	private void viewTransferHistory() throws AuthenticationServiceException {
 	Transfers[] transfers = tenmoService.getAllTransactionsByUsers(currentUser.getUser().getId(), currentUser.getToken());
+	System.out.println("------------------------------------------");
+	System.out.println("Transfer ID" + "      " + "To/From"+ "      " +"Amount");
 		for(Transfers T : transfers) {
-			if(T.getTransfer_status_id() == 2) {
-				
-				System.out.println(T.toString() + " ACCEPTED!");
-			}else if(T.getTransfer_status_id() ==  3) {
-				
-				System.out.println(T.toString() + " REJECTED :(");
+			if(T.getTransfer_type_id() == 2) {
+				 	System.out.println(T.getTransfer_id() +"               " + "From: " + currentUser.getUser().getUsername() + "      " + "$" + T.getAmount());
 			}else {
-				System.out.println(T.toString() + " PENDING");
+				
+					System.out.println(T.getTransfer_id() +"               " + "To: " + currentUser.getUser().getUsername() + "      " + "$" + T.getAmount());
+				}
+			} 
+					System.out.println("------------------------------------------");
 			}
 			
-		}
-	}
+	
 
 	private void viewPendingRequests() {
 		// TODO Auto-generated method stub
@@ -217,10 +221,98 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		
 	}
 
-	private void requestBucks() {
-		// TODO Auto-generated method stub
-		
+	private void requestBucks() throws AuthenticationServiceException {
+		User[] user = tenmoService.getAll(currentUser.getToken());
+		String[] usernames = new String[user.length];
+		for(int i = 0; i< user.length; i++) {
+			usernames[i] = user[i].getUsername();
+		}
+		System.out.println("Choose which user you want to request money from");
+		String choice = (String)console.getChoiceFromOptions(usernames);
+		if(choice.equals(currentUser.getUser().getUsername())){
+			System.out.println("Cannot request money from yourself");
+			
+		}else {
+		for(User us: user) {
+			
+			if(us.getUsername().equals(choice)) {
+				System.out.println("------------------------------------------");
+				System.out.println("User ID" + "      " + "Name");
+				System.out.println(currentUser.getUser().getId() +"         " + currentUser.getUser().getUsername() );
+				System.out.println(us.getId() +"         " + us.getUsername() );
+				System.out.println("------------------------------------------");
+				Scanner sc = new Scanner(System.in);
+				
+				System.out.print("Enter Amount: ");
+				String inAmount = sc.nextLine();
+				BigDecimal amount = new BigDecimal(inAmount);
+				tenmoService.addTransfer(1, 1, us.getId(), currentUser.getUser().getId(), amount, currentUser.getToken());
+			}
+		}
+		}
 	}
+	
+	public void printSendTransfers(Transfers transfer) throws AuthenticationServiceException {
+		for(User users : tenmoService.getAll(currentUser.getToken())) {
+			if(transfer.getAccount_to() == users.getId() ) {
+			
+				if(transfer.getTransfer_status_id() == 2) {
+				
+					System.out.println("-------------------------------------------- ");
+					System.out.println("Transfer Details");
+					System.out.println("--------------------------------------------");
+					System.out.println("Id: " + transfer.getTransfer_id() + "\nFrom: " + currentUser.getUser().getUsername() + "\nTo: " 
+					+ users.getUsername() + "\nType: Send" + "\nStatus: " + "Approved" + "\nAmount: " + transfer.getAmount()); 
+			} else if(transfer.getTransfer_status_id() == 3) {
+					
+					System.out.println("-------------------------------------------- ");
+					System.out.println("Transfer Details");
+					System.out.println("--------------------------------------------");
+					System.out.println("Id: " + transfer.getTransfer_id() + "\nFrom: " + currentUser.getUser().getUsername() + "\nTo: " 
+					+ users.getUsername() + "\nType: Send" + "\nStatus: " + "Rejected" + "\nAmount: " + transfer.getAmount()); 
+			} else {
+							
+					System.out.println("-------------------------------------------- ");
+					System.out.println("Transfer Details");
+					System.out.println("--------------------------------------------");
+					System.out.println("Id: " + transfer.getTransfer_id() + "\nFrom: " + currentUser.getUser().getUsername() + "\nTo: " 
+					+ users.getUsername() + "\nType: Send" + "\nStatus: " + "Pending" + "\nAmount: " + transfer.getAmount()); 
+					}
+					}
+		} 
+	}
+	
+	public void printRequestTransfers(Transfers transfer) throws AuthenticationServiceException {
+		for(User users : tenmoService.getAll(currentUser.getToken())) {
+			if(transfer.getAccount_to() == users.getId() ) {
+			
+				if(transfer.getTransfer_status_id() == 2) {
+				
+					System.out.println("-------------------------------------------- ");
+					System.out.println("Transfer Details");
+					System.out.println("--------------------------------------------");
+					System.out.println("Id: " + transfer.getTransfer_id() + "\nFrom: " + currentUser.getUser().getUsername() + "\nTo: " 
+					+ users.getUsername() + "\nType: Request" + "\nStatus: " + "Approved" + "\nAmount: " + transfer.getAmount()); 
+			} else if(transfer.getTransfer_status_id() == 3) {
+					
+					System.out.println("-------------------------------------------- ");
+					System.out.println("Transfer Details");
+					System.out.println("--------------------------------------------");
+					System.out.println("Id: " + transfer.getTransfer_id() + "\nFrom: " + currentUser.getUser().getUsername() + "\nTo: " 
+					+ users.getUsername() + "\nType: Request" + "\nStatus: " + "Rejected" + "\nAmount: " + transfer.getAmount()); 
+			} else {
+							
+					System.out.println("-------------------------------------------- ");
+					System.out.println("Transfer Details");
+					System.out.println("--------------------------------------------");
+					System.out.println("Id: " + transfer.getTransfer_id() + "\nFrom: " + currentUser.getUser().getUsername() + "\nTo: " 
+					+ users.getUsername() + "\nType: Request" + "\nStatus: " + "Pending" + "\nAmount: " + transfer.getAmount()); 
+					}
+					}
+		} 
+	}
+	
+	
 	
 	private void exitProgram() {
 		System.exit(0);
@@ -281,6 +373,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		String password = console.getUserInput("Password");
 		return new UserCredentials(username, password);
 	}
+	
+	
 	
 	
 }

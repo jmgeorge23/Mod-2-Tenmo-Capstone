@@ -65,9 +65,9 @@ public class TenmoController {
 	    	
 	    		transfersDAO.addTransfer(transfers);
 	    		for(User user: userDAO.findAll()) {
-	    			if(user.getId() == transfers.getAccount_from() && transfers.getTransfer_status_id() != 3) {
+	    			if(user.getId() == transfers.getAccount_from() && transfers.getTransfer_status_id() == 2) {
 	    				accountsDAO.updateBalance(userDAO.getBalanceByUser(user.getUsername()).subtract(transfers.getAmount()), transfers.getAccount_from());
-	    			}else if(user.getId() == transfers.getAccount_to()&& transfers.getTransfer_status_id() != 3) {
+	    			}else if(user.getId() == transfers.getAccount_to()&& transfers.getTransfer_status_id() == 2) {
 	    				accountsDAO.updateBalance(userDAO.getBalanceByUser(user.getUsername()).add(transfers.getAmount()), transfers.getAccount_to());
 	    				
 	    			}
